@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 URL Shortener Fix Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Create Test URL</h3>
+            <input type="text" id="test-url" placeholder="Enter long URL (e.g., https://en.wikipedia.org/wiki/Banana_republic)" value="https://en.wikipedia.org/wiki/Banana_republic" />
+            <input type="text" id="test-shortcode" placeholder="Enter shortcode (e.g., test123)" value="test123" />
+            <button onclick="createTestUrl()">Create Test URL</button>
+            <div id="create-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Check Storage</h3>
+            <button onclick="checkStorage()">Check What's Stored</button>
+            <div id="storage-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Redirect Logic</h3>
+            <input type="text" id="test-redirect-shortcode" placeholder="Enter shortcode to test" value="test123" />
+            <button onclick="testRedirectLogic()">Test Redirect Logic</button>
+            <div id="redirect-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Manual Test</h3>
+            <p>After creating a test URL above, try these:</p>
+            <ul>
+                <li><a href="/test123" target="_blank">Test direct access: /test123</a></li>
+                <li><a href="http://localhost:4028/test123" target="_blank">Test full URL: http://localhost:4028/test123</a></li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Fix Issues</h3>
+            <button onclick="fixStorage()">Fix Storage Issues</button>
+            <button onclick="clearAll()">Clear All Data</button>
+            <div id="fix-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function createTestUrl() {
+            const longUrl = document.getElementById('test-url').value;
+            const shortcode = document.getElementById('test-shortcode').value;
+            const result = document.getElementById('create-result');
+            
+            if (!longUrl || !shortcode) {
+                result.className = 'result error';
+                result.textContent = 'Please enter both URL and shortcode';
+                return;
+            }
+
+            try {
+                // Create URL entry
+                const urlEntry = {
+                    id: Date.now(),
+                    originalUrl: longUrl,
+                    shortcode: shortcode,
+                    createdAt: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                    clickCount: 0
+                };
+
+                // Store in localStorage (lowercase key)
+                const urls = JSON.parse(localStorage.getItem('urlShortener_urls') || '{}');
+                urls[shortcode.toLowerCase()] = urlEntry;
+                localStorage.setItem('urlShortener_urls', JSON.stringify(urls));
+
+                result.className = 'result success';
+                result.textContent = `✅ URL created successfully!\n\nShortcode: ${shortcode}\nOriginal URL: ${longUrl}\n\nTry accessing: http://localhost:4028/${shortcode}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function checkStorage() {
+            const result = document.getElementById('storage-result');
+            
+            try {
+                const urls = JSON.parse(localStorage.getItem('urlShortener_urls') || '{}');
+                const clicks = JSON.parse(localStorage.getItem('urlShortener_clicks') || '{}');
+                
+                if (Object.keys(urls).length === 0) {
+                    result.className = 'result warning';
+                    result.textContent = '⚠️ No URLs found in storage';
+                } else {
+                    result.className = 'result success';
+                    result.textContent = `✅ Found ${Object.keys(urls).length} URLs:\n\n${JSON.stringify(urls, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function testRedirectLogic() {
+            const shortcode = document.getElementById('test-redirect-shortcode').value;
+            const result = document.getElementById('redirect-result');
+            
+            if (!shortcode) {
+                result.className = 'result error';
+                result.textContent = 'Please enter a shortcode';
+                return;
+            }
+
+            try {
+                const urls = JSON.parse(localStorage.getItem('urlShortener_urls') || '{}');
+                const url = urls[shortcode.toLowerCase()];
+                
+                if (url) {
+                    result.className = 'result success';
+                    result.textContent = `✅ Found URL!\n\nShortcode: ${shortcode}\nOriginal: ${url.originalUrl}\nExpires: ${url.expiresAt}\n\nRedirecting in 3 seconds...`;
+                    
+                    setTimeout(() => {
+                        window.location.href = url.originalUrl;
+                    }, 3000);
+                } else {
+                    result.className = 'result error';
+                    result.textContent = `❌ No URL found for shortcode: ${shortcode}\n\nAvailable shortcodes: ${Object.keys(urls).join(', ')}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function fixStorage() {
+            const result = document.getElementById('fix-result');
+            
+            try {
+                // Fix any case sensitivity issues
+                const urls = JSON.parse(localStorage.getItem('urlShortener_urls') || '{}');
+                const fixedUrls = {};
+                
+                Object.keys(urls).forEach(key => {
+                    const url = urls[key];
+                    // Ensure shortcode is lowercase in the key
+                    fixedUrls[key.toLowerCase()] = {
+                        ...url,
+                        shortcode: url.shortcode.toLowerCase()
+                    };
+                });
+                
+                localStorage.setItem('urlShortener_urls', JSON.stringify(fixedUrls));
+                
+                result.className = 'result success';
+                result.textContent = `✅ Storage fixed!\n\nFixed ${Object.keys(fixedUrls).length} URLs`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function clearAll() {
+            const result = document.getElementById('fix-result');
+            
+            try {
+                localStorage.removeItem('urlShortener_urls');
+                localStorage.removeItem('urlShortener_clicks');
+                
+                result.className = 'result success';
+                result.textContent = '✅ All data cleared!';
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        // Auto-check storage on page load
+        window.onload = function() {
+            checkStorage();
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener Debug Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Check Local Storage</h3>
+            <button onclick="checkStorage()">Check Stored URLs</button>
+            <div id="storage-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test URL Retrieval</h3>
+            <input type="text" id="test-shortcode" placeholder="Enter shortcode (e.g., Qn8WWV)" />
+            <button onclick="testRetrieval()">Test Retrieval</button>
+            <div id="retrieval-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Redirect</h3>
+            <button onclick="testRedirect()">Test Direct Redirect</button>
+            <div id="redirect-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Manual URL Test</h3>
+            <p>Try accessing: <a href="/Qn8WWV" target="_blank">http://localhost:4028/Qn8WWV</a></p>
+            <p>This should redirect to the original URL if everything is working correctly.</p>
+        </div>
+    </div>
+
+    <script>
+        function checkStorage() {
+            const result = document.getElementById('storage-result');
+            try {
+                const urls = localStorage.getItem('urlShortener_urls');
+                const clicks = localStorage.getItem('urlShortener_clicks');
+                
+                result.innerHTML = `
+                    <strong>URLs in Storage:</strong><br>
+                    ${urls ? JSON.stringify(JSON.parse(urls), null, 2) : 'No URLs found'}<br><br>
+                    <strong>Clicks in Storage:</strong><br>
+                    ${clicks ? JSON.stringify(JSON.parse(clicks), null, 2) : 'No clicks found'}
+                `;
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function testRetrieval() {
+            const shortcode = document.getElementById('test-shortcode').value;
+            const result = document.getElementById('retrieval-result');
+            
+            if (!shortcode) {
+                result.innerHTML = 'Please enter a shortcode';
+                return;
+            }
+
+            try {
+                const urls = JSON.parse(localStorage.getItem('urlShortener_urls') || '{}');
+                const url = urls[shortcode.toLowerCase()];
+                
+                if (url) {
+                    result.innerHTML = `
+                        <strong>Found URL:</strong><br>
+                        Original: ${url.originalUrl}<br>
+                        Shortcode: ${url.shortcode}<br>
+                        Created: ${url.createdAt}<br>
+                        Expires: ${url.expiresAt}<br>
+                        Expired: ${new Date() > new Date(url.expiresAt) ? 'Yes' : 'No'}
+                    `;
+                } else {
+                    result.innerHTML = `No URL found for shortcode: ${shortcode}`;
+                }
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function testRedirect() {
+            const shortcode = document.getElementById('test-shortcode').value;
+            const result = document.getElementById('redirect-result');
+            
+            if (!shortcode) {
+                result.innerHTML = 'Please enter a shortcode first';
+                return;
+            }
+
+            try {
+                const urls = JSON.parse(localStorage.getItem('urlShortener_urls') || '{}');
+                const url = urls[shortcode.toLowerCase()];
+                
+                if (url) {
+                    result.innerHTML = `Redirecting to: ${url.originalUrl}`;
+                    setTimeout(() => {
+                        window.location.href = url.originalUrl;
+                    }, 1000);
+                } else {
+                    result.innerHTML = `No URL found for shortcode: ${shortcode}`;
+                }
+            } catch (error) {
+                result.innerHTML = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> 

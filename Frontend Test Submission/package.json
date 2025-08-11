@@ -1,0 +1,75 @@
+{
+    "name": "linkshort-pro",
+    "version": "0.1.0",
+    "private": true,
+    "rocketCritical": {
+      "dependencies": [
+        "@dhiwise/component-tagger",
+        "react",
+        "react-dom",
+        "@reduxjs/toolkit",
+        "redux",
+        "react-router-dom"
+      ],
+      "devDependencies": [
+        "@vitejs/plugin-react",
+        "vite",
+        "vite-tsconfig-paths"
+      ],
+      "warning": "🚨 CRITICAL: DO NOT REMOVE OR MODIFY ABOVE DEPENDENCIES - Required for app functionality"
+    },
+    "dependencies": {
+      "@dhiwise/component-tagger": "^1.0.10",
+      "@emotion/react": "^11.14.0",
+      "@emotion/styled": "^11.14.1",
+      "@mui/icons-material": "^7.3.1",
+      "@mui/material": "^7.3.1",
+      "@radix-ui/react-slot": "^1.2.3",
+      "@reduxjs/toolkit": "^2.6.1",
+      "@testing-library/jest-dom": "^5.15.1",
+      "@testing-library/react": "^11.2.7",
+      "@testing-library/user-event": "^12.8.3",
+      "axios": "^1.8.4",
+      "class-variance-authority": "^0.7.1",
+      "date-fns": "^4.1.0",
+      "dotenv": "^16.0.1",
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0",
+      "react-helmet": "^6.1.0",
+      "react-hook-form": "^7.55.0",
+      "react-router-dom": "6.0.2",
+      "react-router-hash-link": "^2.4.3",
+      "recharts": "^2.15.2",
+      "redux": "^5.0.1"
+    },
+    "scripts": {
+      "start": "vite",
+      "dev": "vite",
+      "build": "vite build --sourcemap",
+      "serve": "vite preview"
+    },
+    "eslintConfig": {
+      "extends": [
+        "react-app",
+        "react-app/jest"
+      ]
+    },
+    "browserslist": {
+      "production": [
+        ">0.2%",
+        "not dead",
+        "not op_mini all"
+      ],
+      "development": [
+        "last 1 chrome version",
+        "last 1 firefox version",
+        "last 1 safari version"
+      ]
+    },
+    "devDependencies": {
+      "@vitejs/plugin-react": "4.3.4",
+      "vite": "5.0.0",
+      "vite-tsconfig-paths": "3.6.0"
+    }
+  }
+  
